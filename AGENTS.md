@@ -1,0 +1,2 @@
+- If you intend to run python anything, use `uv` not `pip` or `python`. For example: `uv add packagename`, `uv run filename`, `uv run pytest`
+- If a command may be long running, or a pager, ensure there is a `30 second` timeout, and you can go read the output after that timeout.

@@ -1,0 +1,28 @@
+[project]
+name = "strategy"
+version = "0.1.0"
+description = "Strategy implementations for the tax-man workflows."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.7.0",
+    "requests>=2.32.0",
+    "pytest>=8.3.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["strategy*"]
+
+[tool.setuptools.package-data]
+"strategy.k1" = ["data/*.csv", "data/*.yaml", "data/*.json"]

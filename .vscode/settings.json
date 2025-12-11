@@ -1,0 +1,39 @@
+{
+    "explorer.compactFolders": false,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.confirmDelete": false,
+    "workbench.iconTheme": "file-icons",
+    "redhat.telemetry.enabled": false,
+    "git.openRepositoryInParentFolders": "always",
+    "terminal.explorerKind": "external",
+    "terminal.external.windowsExec": "wt",
+    "editor.formatOnSave": true,
+    "eslint.run": "onSave",
+    "eslint.format.enable": true,
+    "eslint.validate": [
+        "json",
+        "javascript",
+        "typescript"
+    ],
+    "eslint.lintTask.enable": true,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[python]": {
+        "editor.formatOnType": true,
+        "editor.tabSize": 4,
+        "editor.defaultFormatter": "charliermarsh.ruff",
+    },
+    "workbench.editor.limit.enabled": true,
+    "workbench.editor.limit.value": 1,
+    "terminal.integrated.autoReplies": {
+        "Terminate batch job (Y/N)": "Y\r"
+    }
+}

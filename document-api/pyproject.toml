@@ -1,0 +1,21 @@
+[project]
+name = "document-api"
+version = "0.1.0"
+description = "Document API integrations for tax-man."
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.5",
+    "httpx>=0.27.2",
+    "python-multipart>=0.0.9",
+    "pytest>=8.3.3",
+    "requests>=2.32.3",
+    "wandb>=0.23.1",
+    "uvicorn[standard]>=0.32.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/document_api"]

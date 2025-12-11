@@ -1,0 +1,14 @@
+[tool.uv.workspace]
+# Manage each top-level package directory as a uv workspace member.
+members = [
+    "document-api",
+    "strategy",
+    "weights-and-biases",
+    "workflow",
+]
+
+[tool.uv.sources]
+document-api = { workspace = true }
+strategy = { workspace = true }
+weights-and-biases = { workspace = true }
+workflow = { workspace = true }

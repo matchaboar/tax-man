@@ -1,0 +1,5 @@
+fields:
+  line_2_net_rental_real_estate_income_loss: table_lookup
+  line_7_royalties: table_lookup
+  line_9b_collectibles_28_percent_gain_loss: table_lookup
+  line_9c_uncaptured_section_1250_gain: table_lookup
