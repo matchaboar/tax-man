@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 from typing import Callable, Optional
 
+from datalab_sdk import DatalabClient
+
 from .base import BaseStrategy, StrategyError, StrategyResult
 
 
@@ -14,35 +16,39 @@ class ParsePdfToDatalabMarkdown(BaseStrategy[str]):
         self,
         *,
         api_key: Optional[str] = None,
-        base_url: str = "https://api.datalab.to/convert/pdf-to-markdown",
-        request_func: Optional[Callable[[bytes, str, str], str]] = None,
+        client_factory: Optional[Callable[[str], object]] = None,
     ):
         super().__init__(name="ParsePdfToDatalabMarkdown", version="v1", activity="parse")
         self.api_key = api_key
-        self.base_url = base_url
-        self.request_func = request_func or self._default_request
+        self._client_factory = client_factory or self._default_client_factory
 
-    def _default_request(self, payload: bytes, api_key: str, base_url: str) -> str:
+    def _default_client_factory(self, api_key: str):
         try:
-            import requests
+            from datalab_sdk import DatalabClient  # type: ignore
         except ImportError as exc:  # pragma: no cover - dependency guard
             raise StrategyError(
-                "requests is required for ParsePdfToDatalabMarkdown"
+                "datalab-python-sdk is required for ParsePdfToDatalabMarkdown"
+            ) from exc
+        return DatalabClient(api_key=api_key)
+
+    def _convert(self, client: DatalabClient, pdf_path: Path) -> str:
+        try:
+            from datalab_sdk.models import ConvertOptions  # type: ignore
+        except ImportError as exc:  # pragma: no cover - dependency guard
+            raise StrategyError(
+                "datalab-python-sdk is required for ParsePdfToDatalabMarkdown"
             ) from exc
 
-        response = requests.post(
-            base_url,
-            headers={"Authorization": f"Bearer {api_key}"},
-            files={"file": ("document.pdf", payload, "application/pdf")},
-            timeout=30,
-        )
-        response.raise_for_status()
-        data = response.json()
-        if isinstance(data, dict):
-            text = data.get("markdown") or data.get("data")
-            if text:
-                return str(text)
-        raise StrategyError("Datalab API response did not include markdown")
+        try:
+            options = ConvertOptions(output_format="markdown")
+            result = client.convert(str(pdf_path), options=options)
+        except Exception as exc:
+            raise StrategyError(f"Datalab convert failed: {exc}") from exc
+
+        markdown = getattr(result, "markdown", None)
+        if not markdown:
+            raise StrategyError("Datalab API response did not include markdown")
+        return str(markdown)
 
     def execute(self, context):
         pdf_path = context.pdf_path
@@ -53,7 +59,8 @@ class ParsePdfToDatalabMarkdown(BaseStrategy[str]):
         if not api_key:
             raise StrategyError("DATALAB_API_KEY is not configured")
 
-        markdown = self.request_func(pdf_path.read_bytes(), api_key, self.base_url)
+        client = self._client_factory(api_key)
+        markdown = self._convert(client, pdf_path)
         return StrategyResult(
             output=markdown,
             context_updates={"parsed_markdown": markdown},

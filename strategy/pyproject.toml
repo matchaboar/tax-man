@@ -8,6 +8,7 @@ dependencies = [
     "pydantic>=2.7.0",
     "requests>=2.32.0",
     "pytest>=8.3.0",
+    "datalab-python-sdk>=0.1.0",
 ]
 
 [tool.pytest.ini_options]

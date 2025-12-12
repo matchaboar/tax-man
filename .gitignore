@@ -1,2 +1,5 @@
 ﻿*.env
 *.pyc
+.egg-info
+**.egg-info
+node_modules

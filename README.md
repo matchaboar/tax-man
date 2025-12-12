@@ -39,6 +39,7 @@ The workflow should aim to do these *activities* in order:
 
 - A *workflow* consists of several *activity* objects. Activities will run in sequence.
 - We can have multiple *versions* of a *workflow*. Different workflow versions can consist of different *strategy* objects, which applied to an activity, change how the activity is resolved.
+- Mermaid diagrams for the configured workflows live in `workflow/README.md`.
 
 ## weights-and-biases
 
