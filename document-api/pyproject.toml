@@ -2,7 +2,7 @@
 name = "document-api"
 version = "0.1.0"
 description = "Document API integrations for tax-man."
-requires-python = ">=3.11"
+requires-python = ">=3.13.7,<3.14"
 dependencies = [
     "fastapi>=0.115.5",
     "httpx>=0.27.2",

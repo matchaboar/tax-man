@@ -4,7 +4,7 @@ workflows:
   production:
     description: Default production config (regex extraction with mock parser for safety).
     workflow: regex
-    use_mock_parser: false
+    use_mock_parser: true
     use_mock_llm: true
     strategy_version: v1.0.0
 

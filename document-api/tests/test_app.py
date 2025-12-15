@@ -147,8 +147,8 @@ def test_write_log_file_creates_log(client: TestClient):
 
     filename = "api-run-test.json"
     target_log = DEFAULT_LOG_DIR / filename
-    if target_log.exists():
-        target_log.unlink()
+    target_log.write_text("placeholder")
+    target_log.unlink()
 
     response = client.post(
         "/documents?write_log_file=true&log_filename=api-run-test.json",

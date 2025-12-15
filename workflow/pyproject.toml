@@ -3,7 +3,7 @@ name = "workflow"
 version = "0.1.0"
 description = "Workflow orchestration for strategy pipelines."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13.7,<3.14"
 dependencies = [
     "strategy",
     "pyyaml>=6.0",

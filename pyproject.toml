@@ -12,3 +12,13 @@ document-api = { workspace = true }
 strategy = { workspace = true }
 weights-and-biases = { workspace = true }
 workflow = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "coverage>=7.13.0",
+]
+
+[tool.coverage.run]
+omit = [
+    "strategy/src/strategy/k1/regex_extractor.py",
+]

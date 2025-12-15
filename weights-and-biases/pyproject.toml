@@ -2,7 +2,7 @@
 name = "weights-and-biases"
 version = "0.1.0"
 description = "Evaluation tooling and datasets for strategy experiments."
-requires-python = ">=3.11"
+requires-python = ">=3.13.7,<3.14"
 dependencies = [
     "wandb>=0.23.1",
     "weave>=0.52.22",

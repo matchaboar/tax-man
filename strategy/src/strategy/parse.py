@@ -81,13 +81,13 @@ class MockParsePdfToDatalabMarkdown(BaseStrategy[str]):
         default_root = (
             package_root.parent / "test" / "fixtures" / "MockParsePdfToMarkdown"
         )
-        if not default_root.exists():
+        if not default_root.exists():  # pragma: no cover - filesystem layout guard
             alt_root = package_root.parents[1] / "test" / "fixtures" / "MockParsePdfToMarkdown"
             workspace_root = package_root.parents[2]
             workspace_alt = workspace_root / "strategy" / "test" / "fixtures" / "MockParsePdfToMarkdown"
-            if alt_root.exists():
+            if alt_root.exists():  # pragma: no cover
                 default_root = alt_root
-            elif workspace_alt.exists():
+            elif workspace_alt.exists():  # pragma: no cover
                 default_root = workspace_alt
         self.fixture_root = fixture_root or default_root
 

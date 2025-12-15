@@ -3,7 +3,7 @@ name = "strategy"
 version = "0.1.0"
 description = "Strategy implementations for the tax-man workflows."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13.7,<3.14"
 dependencies = [
     "pydantic>=2.7.0",
     "requests>=2.32.0",
