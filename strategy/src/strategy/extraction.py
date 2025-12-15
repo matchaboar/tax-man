@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, Mapping, Optional, Sequence
 
-from strategy.models.k1.pydantic_model import GenericK1Lines, map_to_generic_lines
+from strategy.models.k1.pydantic_model import map_to_generic_lines
 from strategy.k1.regex_extractor import (
     DOC1_FIELD_TEMPLATE,
     ParsedK1RegexExtractor,
@@ -109,10 +109,10 @@ class InferExtractionCompleteness(BaseStrategy[Dict[str, Sequence[str]]]):
             raise StrategyError("field_values is required before inference")
 
         missing = []
-        for field in self.required_fields:
-            value = context.field_values.get(field, "")
+        for required_field in self.required_fields:
+            value = context.field_values.get(required_field, "")
             if value in ("", "0", None):
-                missing.append(field)
+                missing.append(required_field)
 
         warnings: Dict[str, Sequence[str]] = {}
         if missing:

@@ -4,7 +4,7 @@ import argparse
 import asyncio
 import os
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Sequence
 
 import pandas as pd
 import weave

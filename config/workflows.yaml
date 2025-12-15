@@ -1,0 +1,40 @@
+# Workflow configuration presets for K-1 processing.
+selected: production
+workflows:
+  production:
+    description: Default production config (regex extraction with mock parser for safety).
+    workflow: regex
+    use_mock_parser: false
+    use_mock_llm: true
+    strategy_version: v1.0.0
+
+  regex-remote-parse:
+    description: Regex extraction using the remote Datalab parser (requires DATALAB_API_KEY).
+    workflow: regex
+    use_mock_parser: false
+    use_mock_llm: true
+    strategy_version: v1.0.0
+
+  llm-mock:
+    description: Fixture-backed parser and mock LLM extraction (safe local run).
+    workflow: llm
+    use_mock_parser: true
+    use_mock_llm: true
+    llm_model: openai/gpt-4o-mini
+    strategy_version: v1.0.0
+
+  llm-mock-parser:
+    description: Fixture-backed parser with real OpenRouter extraction.
+    workflow: llm
+    use_mock_parser: true
+    use_mock_llm: false
+    llm_model: openai/gpt-4o-mini
+    strategy_version: v1.0.0
+
+  llm-production:
+    description: Real parser + OpenRouter extraction (requires OpenRouter + Datalab API keys).
+    workflow: llm
+    use_mock_parser: false
+    use_mock_llm: false
+    llm_model: openai/gpt-4o-mini
+    strategy_version: v1.0.0

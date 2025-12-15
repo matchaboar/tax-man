@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence
+from typing import Any, Callable, Dict, Mapping, Optional
 
 from strategy.k1 import DOC1_FIELD_TEMPLATE, FIELD_KEYS, load_document_values
-from strategy.models.k1.pydantic_model import GenericK1Lines, map_to_generic_lines
+from strategy.models.k1.pydantic_model import map_to_generic_lines
 
 from .base import BaseStrategy, StrategyError, StrategyResult
 

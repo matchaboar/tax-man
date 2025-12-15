@@ -151,6 +151,15 @@ Examples:
 Use `GET /workflow/{document_id}` in the Document API to inspect a run: it returns the uploaded PDF (base64), every workflow step's input/output/artifacts, and the original response body for that document.
 For a quick UI, open `GET /workflow/view`; it lists available IDs and lets you click through or paste a document ID.
 
+## Workflow configuration
+
+- Presets live in `config/workflows.yaml`; the `selected` entry marks the default/production choice that the API will apply when no overrides are provided.
+- Each preset can toggle the workflow (`regex` vs `llm`), parser/LLM mock flags, `llm_model`, and `strategy_version`.
+- Switch configurations at runtime by passing `workflow_config=<name>` to the API or runners; individual query params still override the preset.
+- Included presets: `production` (regex + mock parser), `regex-remote-parse`, `llm-mock`, `llm-mock-parser`, `llm-production`.
+- Example (use the `llm-production` preset while overriding the model):  
+  `curl -X POST "http://localhost:8000/documents?workflow_config=llm-production&llm_model=anthropic/claude-3.5-sonnet" -F "file=@your.pdf"`
+
 ## Weights & Biases logging and evals
 
 - Set `WANDB_API_KEY` (and optionally `WANDB_ENTITY`/`WANDB_PROJECT`) then pass `enable_wandb=true` to the API to push workflow summaries to W&B. Local run logs can also be persisted with `write_log_file=true` (saved under `document-api/run-logs/`).

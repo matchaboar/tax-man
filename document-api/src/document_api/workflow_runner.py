@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Mapping, Optional, Protocol, runtime_checkable
+from typing import Any, Iterable, Mapping, Optional, Protocol, runtime_checkable
 
 from fastapi.encoders import jsonable_encoder
 
+from workflow.config import DEFAULT_WORKFLOW_OPTIONS, WorkflowConfigError, resolve_run_options
 from workflow.core import WorkflowResult
 from workflow.k1 import build_k1_llm_extract_workflow, build_k1_workflow
 
 from .models import WorkflowRunResult
 from .telemetry import log_to_wandb as record_wandb_run, write_run_log
+
+
+DEFAULT_RUN_CONFIG = dict(DEFAULT_WORKFLOW_OPTIONS)
 
 
 @runtime_checkable
@@ -18,12 +22,14 @@ class WorkflowRunner(Protocol):
         self,
         *,
         pdf_path: Path,
-        workflow: str = "regex",
-        use_mock_parser: bool = True,
-        use_mock_llm: bool = True,
-        llm_model: str = "openai/gpt-4o-mini",
+        workflow: Optional[str] = None,
+        workflow_config: Optional[str] = None,
+        workflow_config_path: Optional[Path] = None,
+        use_mock_parser: Optional[bool] = None,
+        use_mock_llm: Optional[bool] = None,
+        llm_model: Optional[str] = None,
         required_fields: Optional[Iterable[str]] = None,
-        strategy_version: str = "v1.0.0",
+        strategy_version: Optional[str] = None,
         enable_wandb: bool = False,
         wandb_project: Optional[str] = None,
         wandb_entity: Optional[str] = None,
@@ -37,6 +43,41 @@ def _as_mapping(value: Optional[Mapping]) -> dict:
     """Normalize mappings to plain dicts for JSON serialization."""
     encoded = jsonable_encoder(value) if value is not None else {}
     return dict(encoded) if isinstance(encoded, Mapping) else {}
+
+
+def _resolve_run_config(
+    *,
+    workflow_config: Optional[str],
+    workflow_config_path: Optional[Path],
+    workflow: Optional[str],
+    use_mock_parser: Optional[bool],
+    use_mock_llm: Optional[bool],
+    llm_model: Optional[str],
+    required_fields: Optional[Iterable[str]],
+    strategy_version: Optional[str],
+) -> tuple[dict[str, Any], Optional[str]]:
+    """Merge config defaults with explicit overrides."""
+    overrides: dict[str, Any] = {}
+    for key, value in (
+        ("workflow", workflow),
+        ("use_mock_parser", use_mock_parser),
+        ("use_mock_llm", use_mock_llm),
+        ("llm_model", llm_model),
+        ("required_fields", required_fields),
+        ("strategy_version", strategy_version),
+    ):
+        if value is not None:
+            overrides[key] = value
+
+    resolved, applied_name = resolve_run_options(
+        config_name=workflow_config,
+        overrides=overrides,
+        config_path=workflow_config_path,
+        defaults=DEFAULT_RUN_CONFIG,
+    )
+    if resolved.get("required_fields") is not None:
+        resolved["required_fields"] = list(resolved["required_fields"])
+    return resolved, applied_name or workflow_config
 
 
 def _build_k1(
@@ -108,12 +149,14 @@ def _run_with_trace(workflow_obj, context):
 def run_k1_workflow(
     *,
     pdf_path: Path,
-    workflow: str = "regex",
-    use_mock_parser: bool = True,
-    use_mock_llm: bool = True,
-    llm_model: str = "openai/gpt-4o-mini",
+    workflow: Optional[str] = None,
+    workflow_config: Optional[str] = None,
+    workflow_config_path: Optional[Path] = None,
+    use_mock_parser: Optional[bool] = None,
+    use_mock_llm: Optional[bool] = None,
+    llm_model: Optional[str] = None,
     required_fields: Optional[Iterable[str]] = None,
-    strategy_version: str = "v1.0.0",
+    strategy_version: Optional[str] = None,
     enable_wandb: bool = False,
     wandb_project: Optional[str] = None,
     wandb_entity: Optional[str] = None,
@@ -122,23 +165,40 @@ def run_k1_workflow(
     log_filename: Optional[str] = None,
 ) -> WorkflowRunResult:
     """Execute the K-1 workflow and normalize outputs for API responses."""
-    run_config = {
-        "workflow": workflow,
-        "use_mock_parser": use_mock_parser,
-        "use_mock_llm": use_mock_llm,
-        "llm_model": llm_model,
-        "required_fields": list(required_fields) if required_fields else None,
-        "strategy_version": strategy_version,
-    }
     try:
-        workflow_obj, context = _build_k1(
+        resolved_config, applied_config = _resolve_run_config(
+            workflow_config=workflow_config,
+            workflow_config_path=workflow_config_path,
             workflow=workflow,
-            pdf_path=pdf_path,
             use_mock_parser=use_mock_parser,
             use_mock_llm=use_mock_llm,
             llm_model=llm_model,
             required_fields=required_fields,
             strategy_version=strategy_version,
+        )
+    except (FileNotFoundError, WorkflowConfigError) as exc:
+        return WorkflowRunResult(
+            succeeded=False,
+            errors=[str(exc)],
+            field_values={},
+            numeric_values={},
+            inference={},
+            metadata={"workflow_config": workflow_config or ""},
+            artifacts={},
+            trace=[],
+        )
+
+    run_config = dict(resolved_config)
+    run_config["workflow_config"] = applied_config
+    try:
+        workflow_obj, context = _build_k1(
+            workflow=resolved_config["workflow"],
+            pdf_path=pdf_path,
+            use_mock_parser=resolved_config["use_mock_parser"],
+            use_mock_llm=resolved_config["use_mock_llm"],
+            llm_model=resolved_config["llm_model"],
+            required_fields=resolved_config.get("required_fields"),
+            strategy_version=resolved_config["strategy_version"],
         )
     except Exception as exc:  # pragma: no cover - defensive
         result = WorkflowRunResult(
@@ -191,7 +251,9 @@ def run_k1_workflow(
 
     succeeded = workflow_result.succeeded and not errors
     metadata = _as_mapping(getattr(context, "metadata", None))
-    metadata.setdefault("workflow", workflow)
+    metadata.setdefault("workflow", resolved_config["workflow"])
+    if applied_config:
+        metadata.setdefault("workflow_config", applied_config)
     return_result = WorkflowRunResult(
         succeeded=succeeded,
         errors=errors,

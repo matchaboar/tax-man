@@ -2257,11 +2257,15 @@ name = "workflow"
 version = "0.1.0"
 source = { editable = "workflow" }
 dependencies = [
+    { name = "pyyaml" },
     { name = "strategy" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "strategy", editable = "strategy" }]
+requires-dist = [
+    { name = "pyyaml", specifier = ">=6.0" },
+    { name = "strategy", editable = "strategy" },
+]
 
 [[package]]
 name = "yarl"

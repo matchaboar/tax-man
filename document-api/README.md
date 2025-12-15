@@ -18,6 +18,7 @@ API docs:
 
 - `POST /documents`  
   Upload a PDF (`multipart/form-data` field `file`). Optional query params:  
+  - `workflow_config` (str, optional): name of a preset in `config/workflows.yaml` (defaults to the `selected` entry).  
   - `workflow` (`regex` | `llm`, default `regex`): choose regex extractor or LLM extractor.  
   - `use_mock_parser` (bool, default `true`): use fixture-backed parser; set to `false` to call the real parser (requires `DATALAB_API_KEY`).  
   - `use_mock_llm` (bool, default `true`): for `llm` workflow, set to `false` to hit OpenRouter (requires `OPENROUTER_API_KEY`).  
@@ -40,6 +41,10 @@ API docs:
   Simple HTML UI that lists all stored document IDs with links, lets you paste an ID, and shows the PDF, every workflow step (input/output/artifacts), and the response JSON.
 
 ### Workflow selection examples
+
+Presets live in `config/workflows.yaml`; the `selected` entry is applied by default. Pass
+`workflow_config=<name>` to use another preset, then override individual fields with query
+params if needed.
 
 - All mock: `workflow=regex&use_mock_parser=true` (default) or `workflow=llm&use_mock_parser=true&use_mock_llm=true`
 - Real parse + regex: `workflow=regex&use_mock_parser=false`

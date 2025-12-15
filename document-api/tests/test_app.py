@@ -51,12 +51,14 @@ def test_workflow_runner_dependency_used(client: TestClient):
     def stub_runner(
         *,
         pdf_path,
-        workflow="regex",
-        use_mock_parser=True,
-        use_mock_llm=True,
-        llm_model="openai/gpt-4o-mini",
+        workflow=None,
+        workflow_config=None,
+        workflow_config_path=None,
+        use_mock_parser=None,
+        use_mock_llm=None,
+        llm_model=None,
         required_fields=None,
-        strategy_version="v1.0.0",
+        strategy_version=None,
         enable_wandb=False,
         wandb_project=None,
         wandb_entity=None,
@@ -68,6 +70,7 @@ def test_workflow_runner_dependency_used(client: TestClient):
             {
                 "pdf_path": pdf_path,
                 "workflow": workflow,
+                "workflow_config": workflow_config,
                 "use_mock_parser": use_mock_parser,
                 "use_mock_llm": use_mock_llm,
                 "llm_model": llm_model,
@@ -102,6 +105,7 @@ def test_workflow_runner_dependency_used(client: TestClient):
         assert response.status_code == 201
         assert calls["pdf_path"].name == "custom.pdf"
         assert calls["workflow"] == "llm"
+        assert calls["workflow_config"] is None
         assert calls["use_mock_parser"] is False
         assert calls["use_mock_llm"] is False
         assert calls["strategy_version"] == "v2.0.0"
@@ -115,6 +119,17 @@ def test_workflow_runner_dependency_used(client: TestClient):
         assert payload["numeric_values"]["one"] == "1"
     finally:
         app.dependency_overrides.pop(get_workflow_runner, None)
+
+
+def test_workflow_config_picks_llm(client: TestClient):
+    response = client.post("/documents?workflow_config=llm-mock", files=_pdf_upload("doc_1.pdf"))
+    assert response.status_code == 201
+
+    payload = response.json()
+    assert payload["succeeded"] is True
+    assert payload["metadata"]["workflow"] == "llm"
+    assert payload["metadata"]["workflow_config"] == "llm-mock"
+    assert payload["artifacts"]["extract_fields"]["strategy_name"] == "MockOpenRouterExtractK1"
 
 
 def test_non_mock_parse_reports_missing_configuration(client: TestClient):

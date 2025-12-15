@@ -161,12 +161,12 @@ def run_candidate_on_sample(candidate: CandidateWorkflow, sample: DatasetSample)
     mismatches: Dict[str, Tuple[str, str]] = {}
     matched = 0
     total = len(sample.ground_truth)
-    for field, expected in sample.ground_truth.items():
-        actual = extracted.get(field, "")
+    for field_name, expected in sample.ground_truth.items():
+        actual = extracted.get(field_name, "")
         if values_match(actual, expected):
             matched += 1
         else:
-            mismatches[field] = (expected, str(actual) if actual is not None else "")
+            mismatches[field_name] = (expected, str(actual) if actual is not None else "")
 
     accuracy = (matched / total) if total else 0.0
     return SampleScore(

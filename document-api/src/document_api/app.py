@@ -340,11 +340,12 @@ def get_workflow(
 async def create_document(
     *,
     file: UploadFile = File(...),
-    workflow: Literal["regex", "llm"] = "regex",
-    use_mock_parser: bool = True,
-    use_mock_llm: bool = True,
-    llm_model: str = "openai/gpt-4o-mini",
-    strategy_version: str = "v1.0.0",
+    workflow: Optional[Literal["regex", "llm"]] = None,
+    workflow_config: Optional[str] = None,
+    use_mock_parser: Optional[bool] = None,
+    use_mock_llm: Optional[bool] = None,
+    llm_model: Optional[str] = None,
+    strategy_version: Optional[str] = None,
     required_fields: Optional[str] = None,
     enable_wandb: bool = False,
     wandb_project: Optional[str] = None,
@@ -366,6 +367,7 @@ async def create_document(
         pdf_path.write_bytes(payload)
         parsed_result = workflow_runner(
             pdf_path=pdf_path,
+            workflow_config=workflow_config,
             workflow=workflow,
             use_mock_parser=use_mock_parser,
             use_mock_llm=use_mock_llm,

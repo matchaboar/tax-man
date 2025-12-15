@@ -1,11 +1,10 @@
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, create_model
 from typing import (
     List,
     Type,
     Dict,
     Any,
     Tuple,
-    Literal,
     Optional,
     Sequence,
     Callable,
